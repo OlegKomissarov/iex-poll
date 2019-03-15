@@ -1,4 +1,5 @@
 const XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest
+const MAX_RETRIES = 3
 
 function httpGet(url) {
   return new Promise((resolve, reject) => {
@@ -8,8 +9,8 @@ function httpGet(url) {
       if (xhr.status === 200) {
         resolve(JSON.parse(xhr.responseText))
       } else {
-        let error = new Error(xhr.statusText)
-        error.code = xhr.status
+        let error = new Error(xhr.statusText || xhr.responseText)
+        error.status = xhr.status
         reject(error)
       }
     }
@@ -18,6 +19,24 @@ function httpGet(url) {
     }
     xhr.send()
   })
+}
+
+function httpRetryable(url, retries = 0) {
+  return new Promise((resolve) => {
+    httpGet(url)
+      .then(resolve)
+      .catch(() => {
+        if(retries++ === MAX_RETRIES) {
+          console.log('maximum retries exceeded')
+        } else {
+          setTimeout(() => {
+            console.log('retrying failed promise...', retries)
+            httpRetryable(url, retries)
+              .then(resolve)
+          }, 2500)
+        }
+      })
+  });
 }
 
 function IexResponseToArray(object) {
@@ -32,6 +51,6 @@ function IexResponseToArray(object) {
 }
 
 module.exports = {
-  httpGet,
-  IexResponseToArray
+  IexResponseToArray,
+  httpRetryable
 }

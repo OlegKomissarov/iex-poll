@@ -9,7 +9,6 @@ app.set('view engine', 'pug')
 app.set('trust proxy', true)
 
 app.use('/', require('./src/api'))
-app.use('/api', require('./endpoint/src/api'))
 
 app.use((request, response) => {
   response.status(404).send('Not Found')

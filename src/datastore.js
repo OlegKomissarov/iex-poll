@@ -5,7 +5,7 @@ const kind = 'company1'
 function update(data, existingData) {
   let entities = data.map(entity => {
     let ex = existingData.find(element => element.symbol === entity.symbol)
-    entity.prices = !!ex && ex.prices
+    entity.prices = ex && ex.prices
     return {
       key: datastore.key([kind, entity.symbol]),
       data: entity

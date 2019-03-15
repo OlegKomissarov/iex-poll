@@ -1,11 +1,9 @@
 const express = require('express')
 const router = express.Router()
-const datastore = require('../endpoint/src/datastore')
-const { IexResponseToArray, httpGet } = require('./utils')
-const { CircuitBreaker } = require('./cirsuitBreaker')
-const circuitBreaker = new CircuitBreaker(3, 2000)
+const datastore = require('./datastore')
+const { IexResponseToArray, httpRetryable } = require('./utils')
 
-// TODO: get symbols from any request. Refactor hard-code
+// TODO: get symbols from any request. Refactor this hard-code
 const SYMBOLS = ['A', 'AAON', 'ABCB', 'AAN', 'AAME', 'AADR', 'AAPL']
 const PRICE_UPDATE_RANGE = 1
 const PRICE_UPDATE_RANGE_DATE_TYPE = 'm'
@@ -20,12 +18,11 @@ router.get('/', (routerRequest, routerResponse) => {
       + '&types=quote&range='
       + PRICE_UPDATE_RANGE
       + PRICE_UPDATE_RANGE_DATE_TYPE
-  // httpGet(iexListUrl)
-  circuitBreaker.call(iexListUrl)
+  httpRetryable(iexListUrl)
     .then(response => {
       data = IexResponseToArray(response)
       return Promise.all(data.map(entity => {
-        return circuitBreaker.call(process.env.IEX_ENDPOINT + entity.symbol + '/logo')
+        return httpRetryable(process.env.IEX_ENDPOINT + entity.symbol + '/logo')
       }))
     })
     .then(logos => {
@@ -42,14 +39,14 @@ router.get('/', (routerRequest, routerResponse) => {
       updatePrices(routerRequest)
       setInterval(updatePrices, MINUTES_FOR_UPDATE * MILLISECONDS_IN_MINUTE, routerRequest)
     })
-    .catch(error => console.log('Rejected: ' + error))
+    .catch(error => console.log('Error ' + error.status + ': ' + error))
 })
 
 function updatePrices(routerRequest) {
   let time
   let data
   Promise.all(SYMBOLS.map(symbol => {
-    return circuitBreaker.call(process.env.IEX_ENDPOINT + symbol + '/price')
+    return httpRetryable(process.env.IEX_ENDPOINT + symbol + '/price')
   }))
     .then(prices => {
       time = new Date()
@@ -65,7 +62,7 @@ function updatePrices(routerRequest) {
     .then(response => {
       datastore.updatePrices(data, response)
     })
-    .catch(error => console.log('Rejected: ' + error))
+    .catch(error => console.log('Error ' + error.status + ': ' + error))
 }
 
 /**
