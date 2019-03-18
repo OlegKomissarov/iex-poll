@@ -1,12 +1,22 @@
-# 2 - Structured data
+IEX Poll Microservice
+This service is for pull information about companies: their names, symbols, logo urls and prices.
+Initial available symbols are: A, AAON, ABCB, AAN, AAME, AADR, AAPL.
 
-![Cloud SQL Build Status][ci-badge-cloudsql] ![Datastore Build Status][ci-badge-datastore]
+It uses Google Datastore as NoSQL database. 
+The database endpoint is set as environment variable `DATASTORE_ENDPOINT`.
+To launch it locally use `npm install` to install packages, 
+then create .env file in project directory by example of file example.env, 
+specify project name and port there
+and then run `npm start` to launch server.
 
-[ci-badge-datastore]: https://storage.googleapis.com/nodejs-getting-started-tests-badges/2-datastore.svg
-[ci-badge-cloudsql]: https://storage.googleapis.com/nodejs-getting-started-tests-badges/2-cloudsql.svg
+You are able to modify pulling interval and companies
+by changing config.json file (minutesForUpdate and symbols fields).
+The initial companies are: A, AAON, ABCB, AAN, AAME, AADR, AAPL, and interval is 1 minute.
 
-This folder contains the sample code for the [Structured data][step-2]
-tutorial. Please refer to the tutorial for instructions on configuring, running,
-and deploying this sample.
+To launch it locally use `npm install` to install packages, 
+then create .env file in project directory by example of file example.env, 
+specify project name and port there
+and then run `npm start` to launch server.
 
-[step-2]: https://cloud.google.com/nodejs/getting-started/using-structured-data
+To make this app production-ready one need to: 
+ - 

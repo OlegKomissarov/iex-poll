@@ -1,8 +1,8 @@
 {
-  "name": "test_task",
+  "name": "iex-poll",
   "description": "Application for getting companies and update their prices from the IEX API",
   "version": "1.0.0",
-  "author": "Oleg",
+  "author": "Oleg Komissarov",
   "engines": {
     "node": ">=8"
   },
@@ -15,7 +15,7 @@
         "args": [
           "app.js"
         ],
-        "msg": "Test task by Oleg"
+        "msg": "iex-poll"
       }
     }
   },

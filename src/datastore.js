@@ -1,19 +1,20 @@
 const { Datastore } = require(process.env.DATASTORE_ENDPOINT)
 const datastore = new Datastore()
-const kind = 'company2'
+
+const KIND = 'company'
 
 function update(data, existingData) {
   let entities = data.map(entity => {
     let ex = existingData.find(element => element.symbol === entity.symbol)
     entity.prices = ex && ex.prices
     return {
-      key: datastore.key([kind, entity.symbol]),
+      key: datastore.key([KIND, entity.symbol]),
       data: entity
     }
   })
   datastore.save(entities, error => {
     if (error) {
-      console.log('Error occurred: ' + error)
+      console.log('Error: ' + error)
     }
   })
 }
@@ -31,13 +32,13 @@ function updatePrices(data, existingData) {
       })
     }
     return {
-      key: datastore.key([kind, entity.symbol]),
+      key: datastore.key([KIND, entity.symbol]),
       data: entity
     }
   })
   datastore.save(entities, error => {
     if (error) {
-      console.log('Error occurred: ' + error)
+      console.log('Error: ' + error)
     }
   })
 }
@@ -45,7 +46,7 @@ function updatePrices(data, existingData) {
 function list(token) {
   return new Promise((resolve, reject) => {
     const query = datastore
-      .createQuery([kind])
+      .createQuery([KIND])
       .start(token)
     datastore.runQuery(query, (error, entities) => {
       if (error) {

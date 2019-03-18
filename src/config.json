@@ -1,0 +1,6 @@
+{
+  "symbols": ["A", "AAON", "ABCB", "AAN", "AAME", "AADR", "AAPL"],
+  "minutesForUpdate": 1,
+  "priceRange": 1,
+  "priceRangeDateType": "m"
+}

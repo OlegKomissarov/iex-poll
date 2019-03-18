@@ -1,4 +1,5 @@
 const XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest
+
 const MAX_RETRIES = 3
 
 function httpGet(url) {

@@ -2,22 +2,15 @@ const express = require('express')
 const router = express.Router()
 const datastore = require('./datastore')
 const { IexResponseToArray, httpRetryable } = require('./utils')
+const config = require('./config')
 
-// TODO: get symbols from any request. Refactor this hard-code
-const SYMBOLS = ['A', 'AAON', 'ABCB', 'AAN', 'AAME', 'AADR', 'AAPL']
-const PRICE_UPDATE_RANGE = 1
-const PRICE_UPDATE_RANGE_DATE_TYPE = 'm'
-const MINUTES_FOR_UPDATE = 1
 const MILLISECONDS_IN_MINUTE = 60 * 1000
 
 router.get('/', (routerRequest, routerResponse) => {
   let data
   let iexListUrl = process.env.IEX_ENDPOINT
-      + 'market/batch?symbols='
-      + SYMBOLS.join(',')
-      + '&types=quote&range='
-      + PRICE_UPDATE_RANGE
-      + PRICE_UPDATE_RANGE_DATE_TYPE
+    + 'market/batch?symbols=' + config.symbols.join(',')
+    + '&types=quote&range=' + config.priceRange + config.priceRangeDateType
   httpRetryable(iexListUrl)
     .then(response => {
       data = IexResponseToArray(response)
@@ -32,12 +25,12 @@ router.get('/', (routerRequest, routerResponse) => {
       return datastore.list(routerRequest.query.pageToken)
     })
     .then(response => {
-      routerResponse.render('index.pug', { data })
+      routerResponse.json(data)
       datastore.update(data, response)
     })
     .then(() => {
       updatePrices(routerRequest)
-      setInterval(updatePrices, MINUTES_FOR_UPDATE * MILLISECONDS_IN_MINUTE, routerRequest)
+      setInterval(updatePrices, config.minutesForUpdate * MILLISECONDS_IN_MINUTE, routerRequest)
     })
     .catch(error => console.log('Error ' + error.status + ': ' + error))
 })
@@ -45,14 +38,14 @@ router.get('/', (routerRequest, routerResponse) => {
 function updatePrices(routerRequest) {
   let time
   let data
-  Promise.all(SYMBOLS.map(symbol => {
+  Promise.all(config.symbols.map(symbol => {
     return httpRetryable(process.env.IEX_ENDPOINT + symbol + '/price')
   }))
     .then(prices => {
       time = new Date()
       data = prices.map((price, index) => {
         return {
-          symbol: SYMBOLS[index],
+          symbol: config.symbols[index],
           timestamp: time,
           value: price
         }
