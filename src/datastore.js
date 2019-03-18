@@ -1,6 +1,6 @@
 const { Datastore } = require(process.env.DATASTORE_ENDPOINT)
 const datastore = new Datastore()
-const kind = 'company1'
+const kind = 'company2'
 
 function update(data, existingData) {
   let entities = data.map(entity => {
