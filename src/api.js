@@ -36,8 +36,8 @@ router.get('/', (routerRequest, routerResponse) => {
       datastore.update(datastore.toDatastoreFormat(companies, 'symbol'))
     })
     .then(() => {
-      updatePrices(routerRequest)
-      setInterval(updatePrices, config.minutesForUpdate * MILLISECONDS_IN_MINUTE, routerRequest)
+      updatePrices(routerRequest.query.pageToken)
+      setInterval(updatePrices, config.minutesForUpdate * MILLISECONDS_IN_MINUTE, routerRequest.query.pageToken)
     })
     .then(() => {
       routerResponse.json(companies)
@@ -45,7 +45,7 @@ router.get('/', (routerRequest, routerResponse) => {
     .catch(error => console.log('Error ' + error.status + ': ' + error))
 })
 
-function updatePrices(routerRequest) {
+function updatePrices(token) {
   let prices
   Promise.all(config.symbols.map(symbol => {
     let iexGetPriceUrl = process.env.IEX_ENDPOINT + symbol + '/price'
@@ -53,7 +53,7 @@ function updatePrices(routerRequest) {
   }))
     .then(response => {
       prices = getPricesWithTimestamps(response)
-      return datastore.list(routerRequest.query.pageToken)
+      return datastore.list(token)
     })
     .then(companies => {
       companies = setPricesToCompanies(companies, prices)
