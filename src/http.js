@@ -1,6 +1,7 @@
 const XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest
 
 const MAX_RETRIES = 3
+const TIMEOUT_BEFORE_RETRY = 2500
 
 function httpGet(url) {
   return new Promise((resolve, reject) => {
@@ -31,27 +32,15 @@ function httpRetryable(url, retries = 0) {
           console.log('maximum retries exceeded')
         } else {
           setTimeout(() => {
-            console.log('retrying failed promise...', retries)
+            console.log('retrying failed request...')
             httpRetryable(url, retries)
               .then(resolve)
-          }, 2500)
+          }, TIMEOUT_BEFORE_RETRY)
         }
       })
-  });
-}
-
-function IexResponseToArray(object) {
-  let array = []
-  for (const key in object) {
-    array.push({
-      symbol: key,
-      name: object[key].quote.companyName
-    })
-  }
-  return array
+  })
 }
 
 module.exports = {
-  IexResponseToArray,
   httpRetryable
 }

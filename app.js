@@ -6,12 +6,12 @@ const api = require('./src/api')
 app.use('/', api)
 
 app.use((request, response) => {
-  response.status(404).send('Not Found')
+  response.status(404).send('Error 404: not found')
 })
 
 app.use((error, request, response) => {
   console.error(error)
-  response.status(500).send(error.response || 'Something broke!')
+  response.status(500).send('Error: ' + error.response)
 })
 
 const server = app.listen(process.env.PORT, () => {

@@ -3,40 +3,8 @@ const datastore = new Datastore()
 
 const KIND = 'company'
 
-function update(data, existingData) {
-  let entities = data.map(entity => {
-    let ex = existingData.find(element => element.symbol === entity.symbol)
-    entity.prices = ex && ex.prices
-    return {
-      key: datastore.key([KIND, entity.symbol]),
-      data: entity
-    }
-  })
-  datastore.save(entities, error => {
-    if (error) {
-      console.log('Error: ' + error)
-    }
-  })
-}
-
-function updatePrices(data, existingData) {
-  let entities = existingData.map(entity => {
-    let priceEntity = data.find(price => price.symbol === entity.symbol)
-    if (!entity.prices) {
-      entity.prices = []
-    }
-    if (priceEntity) {
-      entity.prices.push({
-        value: priceEntity.value,
-        timestamp: priceEntity.timestamp
-      })
-    }
-    return {
-      key: datastore.key([KIND, entity.symbol]),
-      data: entity
-    }
-  })
-  datastore.save(entities, error => {
+function update(data) {
+  datastore.save(data, error => {
     if (error) {
       console.log('Error: ' + error)
     }
@@ -57,8 +25,17 @@ function list(token) {
   })
 }
 
+function toDatastoreFormat(data, key) {
+  return data.map(element => {
+    return {
+      key: datastore.key([KIND, element[key]]),
+      data: element
+    }
+  })
+}
+
 module.exports = {
   list,
   update,
-  updatePrices
+  toDatastoreFormat
 }
